@@ -1,5 +1,6 @@
 const std = @import("std");
 const common = @import("common.zig");
+const NetworkMessage = @import("NetworkMessage.zig");
 
 pub fn connect() common.NetworkingError!void {
     const address = try common.getLocalhostAddress();
@@ -11,15 +12,25 @@ pub fn connect() common.NetworkingError!void {
     std.debug.print("Client connected to server successfully\n", .{});
 
     var buffer: [32]u8 = undefined;
-    const closingSignal = "Closing Connection...";
-    while (true) {
-        _ = socket.read(&buffer) catch
+    var shouldExit = false;
+    while (!shouldExit) {
+        const readSize = socket.read(&buffer) catch
             return common.NetworkingError.AddressCreationError;
-        std.debug.print("Read server message: {s}\n", .{buffer});
+        shouldExit = try processMessageFromServer(&buffer, readSize);
+    }
+}
 
-        if (std.mem.eql(u8, closingSignal, buffer[0..closingSignal.len])) {
-            std.debug.print("Recieved signal to close connection\n", .{});
-            break;
+fn processMessageFromServer(messageBuf: []const u8, readSize: usize) common.NetworkingError!bool {
+    if (readSize > 0) {
+        const message = try NetworkMessage.decodeMessage(messageBuf);
+
+        switch (message) {
+            .EXIT => {
+                std.debug.print("Recieved Exit signal\n", .{});
+                return true;
+            },
         }
     }
+
+    return false;
 }

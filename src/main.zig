@@ -12,7 +12,7 @@ pub fn main() !void {
     const isServer = processCliOptions(alloc);
 
     if (isServer) {
-        try server.serve();
+        try server.serve(alloc);
     } else {
         try client.connect();
     }

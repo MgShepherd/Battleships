@@ -1,6 +1,7 @@
 const std = @import("std");
+const NetworkMessage = @import("NetworkMessage.zig");
 
-pub const NetworkingError = error{AddressCreationError};
+pub const NetworkingError = error{AddressCreationError} || NetworkMessage.MessageError;
 
 pub const PORT_NUMBER = 3490;
 pub const LOCALHOST_ADDRESS = "127.0.0.1";

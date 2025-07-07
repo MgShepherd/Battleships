@@ -1,7 +1,8 @@
 const std = @import("std");
 const common = @import("common.zig");
+const NetworkMessage = @import("NetworkMessage.zig");
 
-pub fn serve() common.NetworkingError!void {
+pub fn serve(alloc: std.mem.Allocator) common.NetworkingError!void {
     const address = try common.getLocalhostAddress();
 
     const listenOptions = std.net.Address.ListenOptions{
@@ -20,19 +21,20 @@ pub fn serve() common.NetworkingError!void {
         const connection = server.accept() catch
             return common.NetworkingError.AddressCreationError;
 
-        connection.stream.writeAll("Testing...\n") catch
-            return common.NetworkingError.AddressCreationError;
-
         connections[numPlayers] = connection;
 
         numPlayers += 1;
     }
     std.debug.print("All players connected\n", .{});
 
+    const exitMessage = NetworkMessage.NetworkMessage{ .EXIT = NetworkMessage.ExitMessage{} };
+    const encodedMessage = try NetworkMessage.encodeMessage(&exitMessage, alloc);
+    defer alloc.free(encodedMessage);
+
     for (&connections) |*connection| {
-        std.debug.print("Closing connection\n", .{});
-        _ = connection.stream.writeAll("Closing Connection...") catch
+        _ = connection.stream.write(encodedMessage) catch
             return common.NetworkingError.AddressCreationError;
+
         connection.stream.close();
     }
 }

@@ -1,8 +1,9 @@
 const std = @import("std");
 const common = @import("common.zig");
+const GameState = @import("GameState.zig");
 const NetworkMessage = @import("NetworkMessage.zig");
 
-pub fn connect() common.NetworkingError!void {
+pub fn connect(alloc: std.mem.Allocator) common.NetworkingError!void {
     const address = try common.getLocalhostAddress();
 
     const socket = std.net.tcpConnectToAddress(address) catch
@@ -11,8 +12,14 @@ pub fn connect() common.NetworkingError!void {
 
     std.debug.print("Client connected to server successfully\n", .{});
 
+    var gameState = try GameState.init(alloc);
+    defer gameState.deinit();
+
     var buffer: [32]u8 = undefined;
     var shouldExit = false;
+
+    try gameState.format(std.io.getStdOut().writer());
+
     while (!shouldExit) {
         const readSize = socket.read(&buffer) catch
             return common.NetworkingError.AddressCreationError;

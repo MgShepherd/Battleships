@@ -14,7 +14,7 @@ pub fn main() !void {
     if (isServer) {
         try server.serve(alloc);
     } else {
-        try client.connect();
+        try client.connect(alloc);
     }
 }
 

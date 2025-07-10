@@ -14,7 +14,7 @@ pub fn main() !void {
     if (isServer) {
         try server.serve(alloc);
     } else {
-        try client.connect(alloc);
+        try client.connect(alloc, std.io.getStdOut().writer(), std.io.getStdIn().reader());
     }
 }
 

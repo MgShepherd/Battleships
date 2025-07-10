@@ -4,6 +4,8 @@ const GameState = @import("GameState.zig");
 
 pub const NetworkingError = error{AddressCreationError} || NetworkMessage.MessageError || GameState.GameStateError;
 
+pub const Position = struct { x: u8, y: u8 };
+
 pub const PORT_NUMBER = 3490;
 pub const LOCALHOST_ADDRESS = "127.0.0.1";
 pub const MAX_CONNECTIONS = 2;

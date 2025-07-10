@@ -4,7 +4,7 @@ const GameState = @This();
 
 pub const GameStateError = error{ OutOfMemory, RenderTextFailed };
 
-const GRID_DIM_SIZE = 10;
+pub const GRID_DIM_SIZE = 10;
 
 grid: []u8,
 alloc: std.mem.Allocator,
